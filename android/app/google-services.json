@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "655911063404",
+    "project_id": "lapak-telu-app-d8a51",
+    "storage_bucket": "lapak-telu-app-d8a51.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:655911063404:android:8a9ab0caed48368159ed49",
+        "android_client_info": {
+          "package_name": "com.example.lapak_telu_crud"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4Awh0Bih2Fr-f1TkCfF2L_qyxdNSzfxs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
