@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:lapak_telu_crud/services/firestore.dart';
+import 'package:lapak_telu_crud/services/firestore_service.dart';
 
 class PostingProduk extends StatelessWidget {
   @override
@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    FirestoreService.fetchCategories().then((categories) {
+    FirestoreService.readCategories().then((categories) {
       setState(() {
         _categories.addAll(categories);
       });
@@ -122,7 +122,7 @@ class _HomeState extends State<Home> {
   }
 
   void addData(String imageUrl) {
-    FirestoreService.uploadData(
+    FirestoreService.createData(
       namaProduk: namaProdukController.text,
       deskripsiProduk: deskripsiProdukController.text,
       kategoriProduk: _selectedCategory!,

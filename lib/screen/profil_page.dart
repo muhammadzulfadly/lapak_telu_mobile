@@ -17,6 +17,30 @@ class ProfilPage extends StatelessWidget {
     );
   }
 
+  delete(BuildContext context, String password) async {
+    if (user != null) {
+      try {
+        // Reautentikasi pengguna sebelum menghapus akun
+        AuthCredential credential = EmailAuthProvider.credential(
+          email: user!.email!,
+          password:
+              password, // Password pengguna harus didapatkan dari input pengguna
+        );
+        await user!.reauthenticateWithCredential(credential);
+        await user!.delete();
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,
+        );
+      } catch (e) {
+        print("Error deleting account: $e");
+        // Tampilkan pesan kesalahan kepada pengguna
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +71,7 @@ class ProfilPage extends StatelessWidget {
                     Column(
                       children: [
                         Text(
-                          user?.displayName ?? 'Muhammad Zulfadly',
+                          user?.displayName ?? 'Nama tidak tersedia',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -164,6 +188,71 @@ class ProfilPage extends StatelessWidget {
                       Text('Keluar Akun'),
                       Spacer(),
                       Icon(Icons.arrow_forward, color: Colors.blue),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                String password = '';
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Anda yakin ingin menghapus akun Anda?'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                              'Tindakan ini akan menghapus seluruh data Anda dan tidak dapat dikembalikan lagi'),
+                          TextField(
+                            obscureText: true,
+                            onChanged: (value) {
+                              password = value;
+                            },
+                            decoration:
+                                InputDecoration(labelText: 'Masukkan Password'),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('Batal',
+                              style: TextStyle(color: Colors.black54)),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Tutup dialog konfirmasi
+                            delete(context, password);
+                          },
+                          child: Text(
+                            'Hapus Akun',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red),
+                      SizedBox(width: 10),
+                      Text('Hapus Akun'),
+                      Spacer(),
+                      Icon(Icons.arrow_forward, color: Colors.red),
                     ],
                   ),
                 ),

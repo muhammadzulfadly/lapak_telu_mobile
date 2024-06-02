@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lapak_telu_crud/screen/daftar_page.dart';
 import 'package:lapak_telu_crud/screen/home_screen.dart';
 import 'package:lapak_telu_crud/screen/lupa_password.dart';
+import 'package:lapak_telu_crud/services/firestore_auth.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -18,9 +19,9 @@ class _LoginPageState extends State<LoginPage> {
 
   signIn() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
+      await FirestoreAuth.readLogin(
+        _emailController.text,
+        _passwordController.text
       );
       // Jika login berhasil, pengguna akan diarahkan ke MainScreen
       Navigator.pushReplacement(

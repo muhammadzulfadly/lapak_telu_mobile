@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lapak_telu_crud/screen/detail_produk_page.dart';
-import 'package:lapak_telu_crud/services/firestore.dart';
+import 'package:lapak_telu_crud/services/firestore_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FavoritPage extends StatefulWidget {

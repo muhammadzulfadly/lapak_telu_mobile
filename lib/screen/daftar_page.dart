@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lapak_telu_crud/screen/login_page.dart';
 import 'package:lapak_telu_crud/screen/notifikasi_page.dart';
+import 'package:lapak_telu_crud/services/firestore_auth.dart';
 
 class DaftarPage extends StatefulWidget {
   @override
@@ -30,7 +31,9 @@ class _DaftarPageState extends State<DaftarPage> {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
-      );
+      ).then((signedInUser) {
+                    FirestoreAuth.createUser(signedInUser.user, context); // Use FirestoreAuth
+                  });
 
       await FirebaseAuth.instance.signOut();
 

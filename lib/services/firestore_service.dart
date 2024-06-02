@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
-  static Future<List<String>> fetchCategories() async {
+  static Future<List<String>> readCategories() async {
     List<String> categories = [];
     try {
       QuerySnapshot querySnapshot =
@@ -22,7 +22,7 @@ class FirestoreService {
     return categories;
   }
 
-  static Future<void> uploadData({
+  static Future<void> createData({
     required String namaProduk,
     required String deskripsiProduk,
     required String kategoriProduk,
