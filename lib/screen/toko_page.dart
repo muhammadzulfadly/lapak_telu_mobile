@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lapak_telu_crud/screen/detail_produk_page.dart';
 import 'package:lapak_telu_crud/services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TokoPage extends StatefulWidget {
   const TokoPage({Key? key}) : super(key: key);
@@ -20,23 +21,30 @@ class _TokoPageState extends State<TokoPage> {
 
   Future<void> _fetchProducts() async {
     try {
-      List<Map<String, dynamic>> products = await FirestoreService.readData();
+      // Get current user's UID
+      String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+
+      // Read products from Firestore
+      List<Map<String, dynamic>> products = await FirestoreService.readProduk();
+
+      // Filter products to display only those sold by the current user
+      List<Map<String, dynamic>> filteredProducts = products
+          .where((productData) => productData['uid'] == currentUserUid)
+          .toList();
+
       setState(() {
-        displayedProducts = products;
+        displayedProducts = filteredProducts;
       });
     } catch (error) {
       print("Failed to fetch products: $error");
     }
   }
 
-  Future<void> _deleteProduct(String productId) async {
+  Future<void> _soldProduct(String productId, String productName) async {
     try {
-      await FirestoreService.deleteProduct(productId);
-      setState(() {
-        displayedProducts.removeWhere((productData) =>
-            productData['produk'] != null &&
-            productData['produk'] == productId);
-      });
+      // Tambahkan kata "[SOLD]" pada nama produk sebelum menghapusnya dari Firestore
+      await FirestoreService.soldProduk(productId, "[SOLD] $productName");
+      Navigator.pop(context);
     } catch (error) {
       print("Failed to delete product: $error");
     }
@@ -61,82 +69,82 @@ class _TokoPageState extends State<TokoPage> {
         child: Column(
           children: [
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                childAspectRatio: 0.7,
-                padding: EdgeInsets.all(12.0),
-                mainAxisSpacing: 8.0,
-                crossAxisSpacing: 8.0,
-                children: displayedProducts.map((productData) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              DetailProdukPage(productData: productData),
-                        ),
-                      );
-                    },
-                    child: Card(
-                      elevation: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Image.network(
-                              productData['fotoProduk'],
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
+              child: displayedProducts.isEmpty
+                  ? Center(
+                      child: Text('Anda belum memiliki produk yang dijual'),
+                    )
+                  : GridView.count(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.7,
+                      padding: EdgeInsets.all(12.0),
+                      mainAxisSpacing: 8.0,
+                      crossAxisSpacing: 8.0,
+                      children: displayedProducts.map((productData) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DetailProdukPage(productData: productData),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            elevation: 2,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  productData['namaProduk'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                Expanded(
+                                  child: Image.network(
+                                    productData['fotoProduk'],
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
-                                Text(
-                                  "\Rp ${productData['hargaProduk']}",
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        productData['namaProduk'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        "\Rp ${productData['hargaProduk']}",
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.sell_sharp,
+                                                color: Colors
+                                                    .red), // Menggunakan ikon sold_out dari library Icons
+                                            onPressed: () {
+                                              _soldProduct(productData['id'],
+                                                  productData['namaProduk']);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    IconButton(
-                                      icon:
-                                          Icon(Icons.edit, color: Colors.blue),
-                                      onPressed: () {
-                                        // edit produk
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon:
-                                          Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        _deleteProduct(productData['id']);
-                                      },
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
-              ),
             ),
           ],
         ),

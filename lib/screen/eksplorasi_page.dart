@@ -20,7 +20,7 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
 
   Future<void> _fetchProducts() async {
     try {
-      List<Map<String, dynamic>> products = await FirestoreService.readData();
+      List<Map<String, dynamic>> products = await FirestoreService.readProduk();
       setState(() {
         displayedProducts = products;
       });

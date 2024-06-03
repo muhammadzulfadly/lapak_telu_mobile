@@ -122,7 +122,7 @@ class _HomeState extends State<Home> {
   }
 
   void addData(String imageUrl) {
-    FirestoreService.createData(
+    FirestoreService.createProduk(
       namaProduk: namaProdukController.text,
       deskripsiProduk: deskripsiProdukController.text,
       kategoriProduk: _selectedCategory!,
