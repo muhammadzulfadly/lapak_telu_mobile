@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lapak_telu_crud/screen/detail_produk_page.dart';
+import 'package:lapak_telu_crud/services/firestore_auth.dart';
 import 'package:lapak_telu_crud/services/firestore_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,10 +13,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> displayedProducts = [];
+  User? user = FirebaseAuth.instance.currentUser;
+  Map<String, dynamic>? userData;
 
   @override
   void initState() {
     super.initState();
+    _fetchUserData();
     _fetchProducts();
   }
 
@@ -26,6 +31,15 @@ class _HomePageState extends State<HomePage> {
       });
     } catch (error) {
       print("Failed to fetch products: $error");
+    }
+  }
+
+  Future<void> _fetchUserData() async {
+    if (user != null) {
+      Map<String, dynamic>? data = await FirestoreAuth.readUser(user!.uid);
+      setState(() {
+        userData = data;
+      });
     }
   }
 
@@ -45,20 +59,24 @@ class _HomePageState extends State<HomePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Muhammad Zulfadly',
-                  style: TextStyle(
+                if (userData != null)
+                  Text(
+                    userData!['nama'] ?? 'Nama tidak tersedia',
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-                Text(
-                  'Apartemen Buah Batu',
-                  style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                if (userData != null)
+                  Text(
+                    userData!['alamat'] ?? 'Alamat tidak tersedia',
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w300,
-                      color: Colors.white),
-                ),
+                      color: Colors.white,
+                    ),
+                  ),
               ],
             ),
           ],

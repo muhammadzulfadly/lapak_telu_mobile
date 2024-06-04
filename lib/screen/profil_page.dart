@@ -15,6 +15,7 @@ class ProfilPage extends StatefulWidget {
 class _ProfilPageState extends State<ProfilPage> {
   User? user = FirebaseAuth.instance.currentUser;
   Map<String, dynamic>? userData;
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -40,27 +41,19 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
-  delete(BuildContext context, String password) async {
-    if (user != null) {
-      try {
-        // Reautentikasi pengguna sebelum menghapus akun
-        AuthCredential credential = EmailAuthProvider.credential(
-          email: user!.email!,
-          password:
-              password, // Password pengguna harus didapatkan dari input pengguna
-        );
-        await user!.reauthenticateWithCredential(credential);
-        await user!.delete();
-
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-          (Route<dynamic> route) => false,
-        );
-      } catch (e) {
-        print("Error deleting account: $e");
-        // Tampilkan pesan kesalahan kepada pengguna
-      }
+  Future<void> _deleteAccount() async {
+    String password = _passwordController.text.trim();
+    try {
+      await FirestoreAuth.deleteUser(context, password);
+      // Jika penghapusan berhasil
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Akun berhasil dihapus')),
+      );
+    } catch (error) {
+      // Jika terjadi kesalahan saat menghapus akun
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus akun: $error')),
+      );
     }
   }
 
@@ -77,7 +70,7 @@ class _ProfilPageState extends State<ProfilPage> {
         backgroundColor: Colors.blue,
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: userData != null
             ? Column(
@@ -226,7 +219,6 @@ class _ProfilPageState extends State<ProfilPage> {
                   SizedBox(height: 10),
                   GestureDetector(
                     onTap: () {
-                      String password = '';
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -239,10 +231,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                 Text(
                                     'Tindakan ini akan menghapus seluruh data Anda dan tidak dapat dikembalikan lagi'),
                                 TextField(
+                                  controller: _passwordController,
                                   obscureText: true,
-                                  onChanged: (value) {
-                                    password = value;
-                                  },
                                   decoration: InputDecoration(
                                       labelText: 'Masukkan Password'),
                                 ),
@@ -256,9 +246,8 @@ class _ProfilPageState extends State<ProfilPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pop(
-                                      context); // Tutup dialog konfirmasi
-                                  delete(context, password);
+                                  _deleteAccount();
+                                  Navigator.pop(context);
                                 },
                                 child: Text(
                                   'Hapus Akun',

@@ -28,12 +28,15 @@ class _DaftarPageState extends State<DaftarPage> {
     }
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
-      ).then((signedInUser) {
-                    FirestoreAuth.createUser(signedInUser.user, context); // Use FirestoreAuth
-                  });
+      )
+          .then((signedInUser) {
+        FirestoreAuth.createUser(
+            signedInUser.user, context); // Use FirestoreAuth
+      });
 
       await FirebaseAuth.instance.signOut();
 
@@ -73,183 +76,187 @@ class _DaftarPageState extends State<DaftarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(''),
-        automaticallyImplyLeading: false,
-      ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.only(bottom: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Daftar',
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                  SizedBox(height: 8.0),
-                ],
-              ),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: TextStyle(color: Color.fromARGB(255, 13, 162, 255)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50.0),
-                  borderSide:
-                      BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50.0),
-                  borderSide:
-                      BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
-                ),
-              ),
-            ),
-            SizedBox(height: 10.0),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                labelStyle: TextStyle(color: Color.fromARGB(255, 13, 162, 255)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50.0),
-                  borderSide:
-                      BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50.0),
-                  borderSide:
-                      BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
-                ),
-              ),
-            ),
-            SizedBox(height: 10.0),
-            TextField(
-              controller: _confirmPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Konfirmasi Password',
-                labelStyle: TextStyle(color: Color.fromARGB(255, 13, 162, 255)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50.0),
-                  borderSide:
-                      BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50.0),
-                  borderSide:
-                      BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
-                ),
-              ),
-            ),
-            SizedBox(height: 10.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Checkbox(
-                  value: agreeToTerms,
-                  onChanged: (value) {
-                    setState(() {
-                      agreeToTerms = value!;
-                    });
-                  },
-                ),
-                Text('Setuju dengan '),
-                GestureDetector(
-                  onTap: () {
-                    // Tindakan untuk membuka Kebijakan Privasi
-                  },
-                  child: Text(
-                    'Privasi',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Text(' dan '),
-                GestureDetector(
-                  onTap: () {
-                    // Tindakan untuk membuka Ketentuan Layanan
-                  },
-                  child: Text(
-                    'Kebijakan',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10.0),
-            ElevatedButton(
-              onPressed: () {
-                signUp();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 13, 162, 255),
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Daftar'),
-            ),
-            SizedBox(height: 15.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Sudah punya akun? '),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
-                  },
-                  child: const Text(
-                    'Masuk Disini',
-                    style: TextStyle(color: Color(0xFF3570D6)),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 80.0),
-            Align(
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Text('Dengan masuk atau mendaftar, saya menyetujui '),
-                  GestureDetector(
-                    onTap: () {
-                      // Tindakan untuk membuka Kebijakan Privasi
-                    },
-                    child: Text(
-                      'Kebijakan Privasi ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Text('dan '),
-                  GestureDetector(
-                    onTap: () {
-                      // Tindakan untuk membuka Ketentuan Layanan
-                    },
-                    child: Text(
-                      'Ketentuan dari Lapak Tel-U.',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        appBar: AppBar(
+          title: Text(''),
+          automaticallyImplyLeading: false,
         ),
-      ),
-    );
+        body: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Daftar',
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.start,
+                      ),
+                      SizedBox(height: 8.0),
+                    ],
+                  ),
+                ),
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle:
+                        TextStyle(color: Color.fromARGB(255, 13, 162, 255)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle:
+                        TextStyle(color: Color.fromARGB(255, 13, 162, 255)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Konfirmasi Password',
+                    labelStyle:
+                        TextStyle(color: Color.fromARGB(255, 13, 162, 255)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 13, 162, 255)),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                      value: agreeToTerms,
+                      onChanged: (value) {
+                        setState(() {
+                          agreeToTerms = value!;
+                        });
+                      },
+                    ),
+                    Text('Setuju dengan '),
+                    GestureDetector(
+                      onTap: () {
+                        // Tindakan untuk membuka Kebijakan Privasi
+                      },
+                      child: Text(
+                        'Privasi',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Text(' dan '),
+                    GestureDetector(
+                      onTap: () {
+                        // Tindakan untuk membuka Ketentuan Layanan
+                      },
+                      child: Text(
+                        'Kebijakan',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10.0),
+                ElevatedButton(
+                  onPressed: () {
+                    signUp();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 13, 162, 255),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('Daftar'),
+                ),
+                SizedBox(height: 15.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Sudah punya akun? '),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: const Text(
+                        'Masuk Disini',
+                        style: TextStyle(color: Color(0xFF3570D6)),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 80.0),
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Text('Dengan masuk atau mendaftar, saya menyetujui '),
+                      GestureDetector(
+                        onTap: () {
+                          // Tindakan untuk membuka Kebijakan Privasi
+                        },
+                        child: Text(
+                          'Kebijakan Privasi ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Text('dan '),
+                      GestureDetector(
+                        onTap: () {
+                          // Tindakan untuk membuka Ketentuan Layanan
+                        },
+                        child: Text(
+                          'Ketentuan dari Lapak Tel-U.',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }

@@ -10,34 +10,54 @@ class EksplorasiPage extends StatefulWidget {
 }
 
 class _EksplorasiPageState extends State<EksplorasiPage> {
+  List<Map<String, dynamic>> allProducts = [];
   List<Map<String, dynamic>> displayedProducts = [];
+  TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  int selectedCategoryIndex = -1;
+  List<String> kategoriProduk = []; // Daftar kategori produk
 
   @override
   void initState() {
     super.initState();
     _fetchProducts();
+    _searchController.addListener(_filterProducts);
   }
 
   Future<void> _fetchProducts() async {
     try {
       List<Map<String, dynamic>> products = await FirestoreService.readProduk();
       setState(() {
+        allProducts = products;
         displayedProducts = products;
+        // Mengambil daftar kategori produk
+        kategoriProduk = products
+            .map((product) => product['kategoriProduk'] as String)
+            .toSet()
+            .toList();
       });
     } catch (error) {
       print("Failed to fetch products: $error");
     }
   }
 
-  List<String> kategori = [
-    'Pakaian',
-    'Elektronik',
-    'Smartphone',
-    'Buku',
-    'Celana',
-    'Mainan'
-  ];
-  int selectedCategoryIndex = -1;
+  void _filterProducts() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase();
+      displayedProducts = allProducts
+          .where((product) =>
+              product['namaProduk'].toLowerCase().contains(_searchQuery))
+          .toList();
+    });
+  }
+
+  void _filterByCategory(String category) {
+    setState(() {
+      displayedProducts = allProducts
+          .where((product) => product['kategoriProduk'] == category)
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +91,7 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                     child: SizedBox(
                       height: 40.0,
                       child: TextField(
+                        controller: _searchController,
                         decoration: InputDecoration(
                           prefixIcon: Icon(Icons.search),
                           filled: true,
@@ -93,43 +114,7 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                     icon: Icon(Icons.filter_list),
                     color: Colors.blue,
                     onPressed: () => {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("Filter Pencarian"),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                SimpleDialogOption(
-                                  onPressed: () {},
-                                  child: Text('Termurah'),
-                                ),
-                                SimpleDialogOption(
-                                  onPressed: () {},
-                                  child: Text('Termahal'),
-                                ),
-                                SimpleDialogOption(
-                                  onPressed: () {},
-                                  child: Text('Terdekat'),
-                                ),
-                                SimpleDialogOption(
-                                  onPressed: () {},
-                                  child: Text('Terjauh'),
-                                ),
-                              ],
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Terapkan'),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                      // filter
                     },
                   ),
                 ],
@@ -145,13 +130,13 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                 height: 40.0,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: kategori.length,
+                  itemCount: kategoriProduk.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
                         setState(() {
                           selectedCategoryIndex = index;
-                          displayedProducts.clear();
+                          _filterByCategory(kategoriProduk[index]);
                         });
                       },
                       child: Container(
@@ -168,7 +153,7 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                         padding: EdgeInsets.symmetric(horizontal: 12.0),
                         child: Center(
                           child: Text(
-                            kategori[index],
+                            kategoriProduk[index],
                             style: TextStyle(
                               fontSize: 14.0,
                               color: selectedCategoryIndex == index
@@ -186,7 +171,6 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                 ),
               ),
             ),
-
             //
             // PRODUK
             //
@@ -232,7 +216,7 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                                   ),
                                 ),
                                 Text(
-                                  "\Rp ${productData['hargaProduk']}",
+                                  "Rp ${productData['hargaProduk']}",
                                   style: TextStyle(
                                     color: Colors.blue,
                                     fontWeight: FontWeight.bold,

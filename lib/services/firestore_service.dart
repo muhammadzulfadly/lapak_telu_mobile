@@ -74,6 +74,30 @@ class FirestoreService {
     return products;
   }
 
+  static Future<void> updateProduk({
+    required String id,
+    required String namaProduk,
+    required String deskripsiProduk,
+    required String kategoriProduk,
+    required String hargaProduk,
+    required String stokProduk,
+    required String? fotoProduk,
+  }) async {
+    try {
+      await FirebaseFirestore.instance.collection('produk').doc(id).update({
+        'namaProduk': namaProduk,
+        'deskripsiProduk': deskripsiProduk,
+        'kategoriProduk': kategoriProduk,
+        'hargaProduk': hargaProduk,
+        'stokProduk': stokProduk,
+        'fotoProduk': fotoProduk,
+      });
+      print("Product updated successfully");
+    } catch (error) {
+      print("Failed to update product: $error");
+    }
+  }
+
   static Future<void> soldProduk(String productId, String newName) async {
     try {
       await FirebaseFirestore.instance
@@ -83,6 +107,85 @@ class FirestoreService {
       print("Product name updated successfully");
     } catch (error) {
       print("Failed to update product name: $error");
+    }
+  }
+
+  static Future<void> createFavorit(String productId) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        CollectionReference favoritesRef =
+            FirebaseFirestore.instance.collection('favorit');
+
+        await favoritesRef.add({'uid': user.uid, 'id': productId});
+
+        print("Product saved to favorites successfully");
+      } else {
+        print("User is not logged in");
+      }
+    } catch (error) {
+      print("Failed to save favorite: $error");
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> readFavorit() async {
+    List<Map<String, dynamic>> favoriteProducts = [];
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('favorit')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+        List<String> productIds = [];
+        querySnapshot.docs.forEach((doc) {
+          productIds.add(doc['id']);
+        });
+        // Mengambil data produk berdasarkan productId yang ada di daftar favorit
+        for (String productId in productIds) {
+          DocumentSnapshot productSnapshot = await FirebaseFirestore.instance
+              .collection('produk')
+              .doc(productId)
+              .get();
+          if (productSnapshot.exists) {
+            favoriteProducts
+                .add(productSnapshot.data() as Map<String, dynamic>);
+          }
+        }
+        print("Favorit products read successfully: $favoriteProducts");
+      } else {
+        print("User is not logged in");
+      }
+    } catch (error) {
+      print("Failed to read favorite products: $error");
+    }
+    return favoriteProducts;
+  }
+
+  static Future<void> deleteFavorit(String productId) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('favorit')
+            .where('id', isEqualTo: productId)
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          await FirebaseFirestore.instance
+              .collection('favorit')
+              .doc(querySnapshot.docs.first.id)
+              .delete();
+          print("Favorit berhasil dihapus");
+        } else {
+          print("Produk tidak ditemukan dalam daftar favorit");
+        }
+      } else {
+        print("User is not logged in");
+      }
+    } catch (error) {
+      print("Gagal menghapus favorit: $error");
     }
   }
 }

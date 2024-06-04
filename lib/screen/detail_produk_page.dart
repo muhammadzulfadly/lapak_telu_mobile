@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lapak_telu_crud/services/firestore_auth.dart';
+import 'package:lapak_telu_crud/services/firestore_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:clipboard/clipboard.dart';
 
@@ -12,7 +14,25 @@ class DetailProdukPage extends StatefulWidget {
 }
 
 class _DetailProdukPageState extends State<DetailProdukPage> {
-  bool isLiked = false; // Variabel untuk melacak status like produk
+  String? namaPenjual = '';
+  String? alamatPenjual = '';
+  String? teleponPenjual = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSellerData();
+  }
+
+  void fetchSellerData() async {
+    // Misalnya, kita ambil data nama dan alamat dari productData['uid']
+    final dataPenjual = await FirestoreAuth.readUser(widget.productData['uid']);
+    setState(() {
+      namaPenjual = dataPenjual?['nama'];
+      alamatPenjual = dataPenjual?['alamat'];
+      teleponPenjual = dataPenjual?['telepon'];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,13 +171,17 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                           ),
                           IconButton(
                             icon: Icon(
-                              isLiked ? Icons.favorite : Icons.favorite_border,
-                              color: isLiked ? Colors.red : Colors.black87,
+                              Icons.favorite,
+                              color: Colors.red,
                             ),
                             onPressed: () {
-                              setState(() {
-                                isLiked = !isLiked;
-                              });
+                              FirestoreService.createFavorit(productData['id']);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Produk berhasil ditambahkan ke favorit'),
+                                ),
+                              );
                             },
                           ),
                         ],
@@ -200,8 +224,29 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                           ),
                         ],
                       ),
+                      Row(
+                        children: [
+                          const Text(
+                            'Kategori',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 73),
+                          Text(
+                            '${productData['kategoriProduk']}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 8),
-                      const Divider(),
+                      const Divider(
+                        thickness: 2,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(height: 10),
                       const Text(
                         'Deskripsi',
@@ -220,20 +265,20 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                         color: Colors.grey,
                       ),
                       const SizedBox(height: 10),
-                      const Row(
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
+                          const CircleAvatar(
                             radius: 20,
                             backgroundImage:
                                 AssetImage('assets/images/logo_lapak.png'),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Muhammad Zulfadly'),
-                              Text('Buah Batu'),
+                              Text(namaPenjual ?? '-'),
+                              Text(alamatPenjual ?? '-'),
                             ],
                           ),
                         ],
@@ -257,7 +302,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        // Aksi ketika tombol ditekan
+                        final url = 'https://wa.me/$teleponPenjual';
+                        launch(url);
                       },
                       child: const Text(
                         'Chat',

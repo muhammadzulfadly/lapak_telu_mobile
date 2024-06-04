@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lapak_telu_crud/screen/profil_page.dart';
 import 'package:lapak_telu_crud/services/firestore_auth.dart';
 
 class EditProfilPage extends StatefulWidget {
@@ -37,7 +38,12 @@ class _EditProfilPageState extends State<EditProfilPage> {
         'alamat': _alamatController.text,
         'telepon': _teleponController.text,
       });
-      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfilPage(),
+        ),
+      );
     }
   }
 
@@ -55,7 +61,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,11 +69,6 @@ class _EditProfilPageState extends State<EditProfilPage> {
             TextField(
               controller: _namaController,
               decoration: InputDecoration(labelText: 'Nama'),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(labelText: user?.email ?? '-'),
-              enabled: false,
             ),
             SizedBox(height: 20),
             TextField(

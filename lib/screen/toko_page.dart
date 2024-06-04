@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lapak_telu_crud/screen/detail_produk_page.dart';
+import 'package:lapak_telu_crud/screen/update_produk.dart';
 import 'package:lapak_telu_crud/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -132,6 +133,22 @@ class _TokoPageState extends State<TokoPage> {
                                             onPressed: () {
                                               _soldProduct(productData['id'],
                                                   productData['namaProduk']);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.edit,
+                                                color: Colors
+                                                    .blue), // Menggunakan ikon sold_out dari library Icons
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      EditProdukPage(
+                                                          productData:
+                                                              productData),
+                                                ),
+                                              );
                                             },
                                           ),
                                         ],

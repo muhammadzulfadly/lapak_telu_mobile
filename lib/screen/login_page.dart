@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:lapak_telu_crud/screen/daftar_page.dart';
 import 'package:lapak_telu_crud/screen/home_screen.dart';
 import 'package:lapak_telu_crud/screen/lupa_password.dart';
-import 'package:lapak_telu_crud/services/firestore_auth.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,15 +17,14 @@ class _LoginPageState extends State<LoginPage> {
 
   signIn() async {
     try {
-      await FirestoreAuth.readLogin(
-        _emailController.text,
-        _passwordController.text
-      );
-      // Jika login berhasil, pengguna akan diarahkan ke MainScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
+      FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _emailController.text, password: _passwordController.text)
+          .then((user) => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => MainScreen())))
+          .catchError((e) {
+        _showErrorDialog("Username atau password salah. Silakan coba lagi.");
+      });
     } catch (e) {
       _showErrorDialog("Username atau password salah. Silakan coba lagi.");
     }
@@ -71,7 +68,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildLoginForm() {
     return Scaffold(
-      body: Padding(
+        body: Center(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,6 +184,6 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:lapak_telu_crud/screen/home_screen.dart';
+import 'package:lapak_telu_crud/screen/login_page.dart';
 
 class FirestoreAuth {
   static Future<void> createUser(user, context) async {
@@ -21,25 +22,10 @@ class FirestoreAuth {
     }
   }
 
-  static Future<void> readLogin(String email, String password) async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } catch (error) {
-      print(
-        "$error",
-      );
-    }
-  }
-
   static Future<Map<String, dynamic>?> readUser(String uid) async {
     try {
-      DocumentSnapshot userData = await FirebaseFirestore.instance
-          .collection('akun')
-          .doc(uid)
-          .get();
+      DocumentSnapshot userData =
+          await FirebaseFirestore.instance.collection('akun').doc(uid).get();
       if (userData.exists) {
         return userData.data() as Map<String, dynamic>?;
       }
@@ -52,17 +38,51 @@ class FirestoreAuth {
 
   static Future<void> updateUser(String uid, Map<String, dynamic> data) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('akun')
-          .doc(uid)
-          .update(data);
+      await FirebaseFirestore.instance.collection('akun').doc(uid).update(data);
       print('User updated successfully');
     } catch (error) {
       print('Failed to update user: $error');
     }
   }
 
+  static Future<void> deleteUser(BuildContext context, String password) async {
+    try {
+      var firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null) {
+        // Reautentikasi pengguna
+        AuthCredential credential = EmailAuthProvider.credential(
+          email: firebaseUser.email!,
+          password: password,
+        );
+        await firebaseUser.reauthenticateWithCredential(credential);
+
+        // Hapus akun pengguna dari Firebase Authentication
+        await firebaseUser.delete();
+
+        // Hapus data pengguna dari Firestore
+        await FirebaseFirestore.instance
+            .collection('akun')
+            .doc(firebaseUser.uid)
+            .delete();
+
+        // Arahkan pengguna ke layar utama atau layar login
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,
+        );
+      } else {
+        print('Current user is null');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak ada pengguna yang aktif')),
+        );
+      }
+    } catch (error) {
+      print('Error deleting user: $error');
+      // Tampilkan pesan error jika ada kesalahan
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus pengguna: $error')),
+      );
+    }
+  }
 }
-
-
-
