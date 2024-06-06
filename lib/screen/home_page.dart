@@ -51,10 +51,6 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.blue,
         title: Row(
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundImage: AssetImage('assets/images/logo_lapak.png'),
-            ),
             SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

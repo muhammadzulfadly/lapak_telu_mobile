@@ -81,12 +81,6 @@ class _ProfilPageState extends State<ProfilPage> {
                     children: [
                       Column(
                         children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundImage:
-                                AssetImage('assets/images/logo_lapak.png'),
-                          ),
-                          SizedBox(height: 10),
                           Column(
                             children: [
                               Text(
