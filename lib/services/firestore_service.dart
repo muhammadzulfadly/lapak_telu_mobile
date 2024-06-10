@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:lapak_telu_crud/services/database_helper.dart';
 
 class FirestoreService {
   static Future<List<String>> readCategories() async {
@@ -114,11 +115,7 @@ class FirestoreService {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        CollectionReference favoritesRef =
-            FirebaseFirestore.instance.collection('favorit');
-
-        await favoritesRef.add({'uid': user.uid, 'id': productId});
-
+        await DatabaseHelper.instance.createFavorite(user.uid, productId);
         print("Product saved to favorites successfully");
       } else {
         print("User is not logged in");
@@ -133,14 +130,11 @@ class FirestoreService {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('favorit')
-            .where('uid', isEqualTo: user.uid)
-            .get();
-        List<String> productIds = [];
-        querySnapshot.docs.forEach((doc) {
-          productIds.add(doc['id']);
-        });
+        List<Map<String, dynamic>> favorites =
+            await DatabaseHelper.instance.readFavorites(user.uid);
+        List<String> productIds =
+            favorites.map((fav) => fav['product_id'].toString()).toList();
+
         // Mengambil data produk berdasarkan productId yang ada di daftar favorit
         for (String productId in productIds) {
           DocumentSnapshot productSnapshot = await FirebaseFirestore.instance
@@ -166,21 +160,8 @@ class FirestoreService {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('favorit')
-            .where('id', isEqualTo: productId)
-            .where('uid', isEqualTo: user.uid)
-            .get();
-
-        if (querySnapshot.docs.isNotEmpty) {
-          await FirebaseFirestore.instance
-              .collection('favorit')
-              .doc(querySnapshot.docs.first.id)
-              .delete();
-          print("Favorit berhasil dihapus");
-        } else {
-          print("Produk tidak ditemukan dalam daftar favorit");
-        }
+        await DatabaseHelper.instance.deleteFavorite(user.uid, productId);
+        print("Favorit berhasil dihapus");
       } else {
         print("User is not logged in");
       }
