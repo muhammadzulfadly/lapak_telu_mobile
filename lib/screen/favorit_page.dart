@@ -25,8 +25,11 @@ class _FavoritPageState extends State<FavoritPage> {
     try {
       List<Map<String, dynamic>> products =
           await FirestoreService.readFavorit();
+      List<Map<String, dynamic>> filteredProducts = products
+          .where((productData) => productData['statusProduk'] == 'tersedia')
+          .toList();
       setState(() {
-        displayedProducts = products;
+        displayedProducts = filteredProducts;
       });
     } catch (error) {
       print("Failed to fetch products: $error");

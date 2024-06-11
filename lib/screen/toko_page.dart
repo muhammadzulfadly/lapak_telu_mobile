@@ -41,10 +41,9 @@ class _TokoPageState extends State<TokoPage> {
     }
   }
 
-  Future<void> _soldProduct(String productId, String productName) async {
+  Future<void> _soldProduct(String productId) async {
     try {
-      // Tambahkan kata "[SOLD]" pada nama produk sebelum menghapusnya dari Firestore
-      await FirestoreService.soldProduk(productId, "[SOLD] $productName");
+      await FirestoreService.soldProduk(productId);
       Navigator.pop(context);
     } catch (error) {
       print("Failed to delete product: $error");
@@ -131,8 +130,7 @@ class _TokoPageState extends State<TokoPage> {
                                                 color: Colors
                                                     .red), // Menggunakan ikon sold_out dari library Icons
                                             onPressed: () {
-                                              _soldProduct(productData['id'],
-                                                  productData['namaProduk']);
+                                              _soldProduct(productData['id']);
                                             },
                                           ),
                                           IconButton(

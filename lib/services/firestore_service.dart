@@ -49,6 +49,7 @@ class FirestoreService {
           'hargaProduk': hargaProduk,
           'stokProduk': stokProduk,
           'fotoProduk': fotoProduk,
+          'statusProduk': 'tersedia'
         });
         print("Data uploaded successfully with ID: $produkId");
       } else {
@@ -99,15 +100,30 @@ class FirestoreService {
     }
   }
 
-  static Future<void> soldProduk(String productId, String newName) async {
+  static Future<void> soldProduk(String productId) async {
     try {
-      await FirebaseFirestore.instance
+      DocumentSnapshot productSnapshot = await FirebaseFirestore.instance
           .collection('produk')
           .doc(productId)
-          .update({'namaProduk': newName});
-      print("Product name updated successfully");
+          .get();
+
+      if (productSnapshot.exists) {
+        String currentName = productSnapshot['statusProduk'];
+        // Cek apakah status produk sudah "sold"
+        if (currentName == 'sold') {
+          print("Product status is already 'sold' and cannot be changed");
+          return;
+        }
+        await FirebaseFirestore.instance
+            .collection('produk')
+            .doc(productId)
+            .update({'statusProduk': 'sold', 'namaProduk': '[SOLD]'});
+        print("Product status updated successfully");
+      } else {
+        print("Product not found");
+      }
     } catch (error) {
-      print("Failed to update product name: $error");
+      print("Failed to update product status: $error");
     }
   }
 

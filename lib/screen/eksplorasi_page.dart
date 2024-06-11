@@ -21,15 +21,18 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
   void initState() {
     super.initState();
     _fetchProducts();
-    _searchController.addListener(_filterProducts);
+    _searchController.addListener(_search);
   }
 
   Future<void> _fetchProducts() async {
     try {
       List<Map<String, dynamic>> products = await FirestoreService.readProduk();
+      List<Map<String, dynamic>> filteredProducts = products
+          .where((productData) => productData['statusProduk'] == 'tersedia')
+          .toList();
       setState(() {
-        allProducts = products;
-        displayedProducts = products;
+        displayedProducts = filteredProducts;
+        allProducts = filteredProducts;
         // Mengambil daftar kategori produk
         kategoriProduk = products
             .map((product) => product['kategoriProduk'] as String)
@@ -41,7 +44,7 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
     }
   }
 
-  void _filterProducts() {
+  void _search() {
     setState(() {
       _searchQuery = _searchController.text.toLowerCase();
       displayedProducts = allProducts
@@ -89,7 +92,7 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 40.0,
+                      height: 40.0, // Atur tinggi sesuai kebutuhan
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
@@ -103,6 +106,8 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                               width: 0.5,
                             ),
                           ),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0), // Tambahkan ini jika diperlukan
                         ),
                       ),
                     ),
@@ -113,13 +118,14 @@ class _EksplorasiPageState extends State<EksplorasiPage> {
                   IconButton(
                     icon: Icon(Icons.filter_list),
                     color: Colors.blue,
-                    onPressed: () => {
+                    onPressed: () {
                       // filter
                     },
                   ),
                 ],
               ),
             ),
+
             //
             // Kategori
             //

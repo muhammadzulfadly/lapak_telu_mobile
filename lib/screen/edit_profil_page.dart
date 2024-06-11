@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:lapak_telu_crud/screen/profil_page.dart';
+import 'package:lapak_telu_crud/screen/home_screen.dart';
 import 'package:lapak_telu_crud/services/firestore_auth.dart';
 
 class EditProfilPage extends StatefulWidget {
@@ -41,7 +41,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProfilPage(),
+          builder: (context) => MainScreen(),
         ),
       );
     }
