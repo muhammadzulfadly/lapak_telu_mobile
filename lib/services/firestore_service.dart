@@ -39,6 +39,7 @@ class FirestoreService {
             FirebaseFirestore.instance.collection('produk');
         DocumentReference docRef = collRef.doc(); // Buat ID unik
         String produkId = docRef.id;
+        Timestamp createdAt = Timestamp.now();
 
         await docRef.set({
           'id': produkId,
@@ -49,7 +50,8 @@ class FirestoreService {
           'hargaProduk': hargaProduk,
           'stokProduk': stokProduk,
           'fotoProduk': fotoProduk,
-          'statusProduk': 'tersedia'
+          'statusProduk': 'tersedia',
+          'createdAt': createdAt
         });
         print("Data uploaded successfully with ID: $produkId");
       } else {

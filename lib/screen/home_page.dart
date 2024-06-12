@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchProducts() async {
     try {
       List<Map<String, dynamic>> products = await FirestoreService.readProduk();
+      products.sort((a, b) => b['createdAt'].compareTo(a['createdAt']));
       List<Map<String, dynamic>> filteredProducts = products
           .where((productData) => productData['statusProduk'] == 'tersedia')
           .toList();
@@ -254,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
                         child: Text(
-                          'PRODUK PILIHAN',
+                          'PRODUK TERBARU',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
